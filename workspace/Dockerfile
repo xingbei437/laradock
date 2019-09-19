@@ -26,6 +26,15 @@ ENV DEBIAN_FRONTEND noninteractive
 # Start as root
 USER root
 
+ARG CHANGE_SOURCE=false
+RUN if [ ${CHANGE_SOURCE} = true ]; then \
+    # Change application source from deb.debian.org to aliyun source
+    sed -i 's/deb.debian.org/mirrors.aliyun.com/' /etc/apt/sources.list  && \
+    sed -i 's/security.debian.org/mirrors.aliyun.com/' /etc/apt/sources.list && \
+    sed -i 's/cdn-fastly.deb.debian.org/mirrors.aliyun.com/' /etc/apt/sources.list && \
+    sed -i 's/cdn-fastly.deb.debian.org/mirrors.aliyun.com/' /etc/apt/sources.list \
+;fi
+
 ###########################################################################
 # Laradock non-root user:
 ###########################################################################
@@ -572,6 +581,7 @@ ENV NVM_DIR /home/laradock/.nvm
 RUN if [ ${INSTALL_NODE} = true ]; then \
     # Install nvm (A Node Version Manager)
     mkdir -p $NVM_DIR && \
+    export NVM_NODEJS_ORG_MIRROR=https://npm.taobao.org/mirrors/node && \
     curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.11/install.sh | bash \
         && . $NVM_DIR/nvm.sh \
         && nvm install ${NODE_VERSION} \
